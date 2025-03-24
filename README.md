@@ -8,3 +8,5 @@ https://developer.hashicorp.com/terraform/install
 #### Requirements
 - AWS CLI (https://docs.aws.amazon.com/cli/v1/userguide/cli-chap-install.html).
 - Configure AWS CLI credentials (https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html).
+
+You can edit the Region, AMI and Instance Type in the variables.tf to fit your requirements.
