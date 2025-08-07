@@ -18,13 +18,15 @@ resource "aws_instance" "jenkins" {
 
   user_data = <<-EOF
               #!/bin/bash
-              sudo dnf update -y
+              exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
               sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
               sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
               sudo dnf upgrade -y
-              sudo dnf install fontconfig -y
-              sudo dnf install java-17-amazon-corretto-headless -y
+
+              sudo dnf install fontconfig java-21-openjdk -y
               sudo dnf install jenkins -y
+
               sudo systemctl daemon-reload
               sudo systemctl enable jenkins
               sudo systemctl start jenkins
