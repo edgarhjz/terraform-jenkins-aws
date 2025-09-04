@@ -35,3 +35,8 @@ resource "aws_route_table" "jenkins_rtb" {
     Name = "jenkins-rtb"
   }
 }
+
+resource "aws_route_table_association" "jenkins_rtb_assoc" {
+  subnet_id      = aws_subnet.jenkins_public_subnet.id
+  route_table_id = aws_route_table.jenkins_rtb.id
+}
