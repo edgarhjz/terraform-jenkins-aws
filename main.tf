@@ -16,6 +16,14 @@ resource "aws_subnet" "jenkins_public_subnet" {
   }
 }
 
+resource "aws_internet_gateway" "jenkins_igw" {
+  vpc_id = aws_vpc.jenkins_vpc.id
+
+  tags = {
+    Name = "jenkins-igw"
+  }
+}
+
 resource "aws_instance" "jenkins" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
