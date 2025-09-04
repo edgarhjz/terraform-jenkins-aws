@@ -14,7 +14,7 @@ variable "vpc_cidr" {
 variable "subnet_cidr" {
   type        = string
   description = "CIDR block for the subnet"
-  default     = "10.0.0.1/24"
+  default     = "10.0.0.0/24"
 }
 
 variable "ami_id" {
