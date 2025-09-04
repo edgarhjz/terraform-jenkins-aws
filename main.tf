@@ -1,3 +1,11 @@
+resource "aws_vpc" "jenkins_vpc" {
+  cidr_block = var.vpc_cidr
+
+  tags = {
+    Name = "jenkins-vpc"
+  }
+}
+
 resource "aws_instance" "jenkins" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
