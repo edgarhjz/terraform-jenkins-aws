@@ -1,45 +1,48 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = var.aws_region
-}
-
-resource "aws_instance" "jenkins" {
-  ami                    = var.ami_id
-  instance_type          = var.instance_type
-  vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
-
-  user_data = <<-EOF
-              #!/bin/bash
-              exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
-
-              sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
-              sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
-              sudo dnf upgrade -y
-
-              sudo dnf install fontconfig java-21-openjdk -y
-              sudo dnf install jenkins -y
-
-              sudo systemctl daemon-reload
-              sudo systemctl enable jenkins
-              sudo systemctl start jenkins
-              EOF
+resource "aws_vpc" "jenkins_vpc" {
+  cidr_block = var.vpc_cidr
 
   tags = {
-    Name = "jenkins-server"
+    Name = "jenkins-vpc"
   }
+}
+
+resource "aws_subnet" "jenkins_public_subnet" {
+  vpc_id            = aws_vpc.jenkins_vpc.id
+  cidr_block        = var.subnet_cidr
+  availability_zone = "${var.aws_region}a"
+
+  tags = {
+    Name = "jenkins-subnet"
+  }
+}
+
+resource "aws_internet_gateway" "jenkins_igw" {
+  vpc_id = aws_vpc.jenkins_vpc.id
+
+  tags = {
+    Name = "jenkins-igw"
+  }
+}
+
+resource "aws_route_table" "jenkins_rtb" {
+  vpc_id = aws_vpc.jenkins_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.jenkins_igw.id
+  }
+  tags = {
+    Name = "jenkins-rtb"
+  }
+}
+
+resource "aws_route_table_association" "jenkins_rtb_assoc" {
+  subnet_id      = aws_subnet.jenkins_public_subnet.id
+  route_table_id = aws_route_table.jenkins_rtb.id
 }
 
 resource "aws_security_group" "jenkins_sg" {
-  name        = "jenkins-sg"
-  description = "Security group for Jenkins server"
+  vpc_id = aws_vpc.jenkins_vpc.id
 
   ingress {
     from_port   = 22
@@ -65,4 +68,19 @@ resource "aws_security_group" "jenkins_sg" {
   tags = {
     Name = "jenkins-sg"
   }
+}
+
+resource "aws_instance" "jenkins_server" {
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
+  subnet_id              = aws_subnet.jenkins_public_subnet.id
+  vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
+  key_name               = var.key_name
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "jenkins-server"
+  }
+
+  user_data = file("deploy_jenkins.sh")
 }

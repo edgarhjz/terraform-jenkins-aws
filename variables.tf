@@ -1,17 +1,35 @@
 variable "aws_region" {
-  type = string
+  type        = string
   description = "AWS region"
   default     = "us-east-1"
 }
 
+variable "vpc_cidr" {
+  type        = string
+  description = "CIDR block for the VPC"
+  default     = "10.0.0.0/16"
+
+}
+
+variable "subnet_cidr" {
+  type        = string
+  description = "CIDR block for the subnet"
+  default     = "10.0.1.0/24"
+}
+
 variable "ami_id" {
-  type = string
+  type        = string
   description = "AMI ID for the instance"
-  default     = "ami-05b10e08d247fb927"
+  default     = "ami-0360c520857e3138f"
 }
 
 variable "instance_type" {
-  type = string
+  type        = string
   description = "Instance type"
-  default     = "t2.medium"
+  default     = "c7i-flex.large"
+}
+
+variable "key_name" {
+  type        = string
+  description = "Key pair name for SSH access"
 }
