@@ -28,3 +28,8 @@ variable "instance_type" {
   description = "Instance type"
   default     = "c7i-flex.large"
 }
+
+variable "key_name" {
+  type = string
+  description = "Key pair name for SSH access"
+}

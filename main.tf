@@ -69,3 +69,17 @@ resource "aws_security_group" "jenkins_sg" {
     Name = "jenkins-sg"
   }
 }
+
+resource "aws_instance" "jenkins_server" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  subnet_id     = aws_subnet.jenkins_public_subnet.id
+  security_groups = [aws_security_group.jenkins_sg.name]
+  key_name = ""
+
+  tags = {
+    Name = "jenkins-server"
+  }
+
+  user_data = file("deploy_jenkins.sh")
+}
