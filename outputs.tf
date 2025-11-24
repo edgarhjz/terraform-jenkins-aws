@@ -1,4 +1,4 @@
 output "jenkins_url" {
-  value       = "http://${aws_instance.jenkins_server.public_ip}:8080"
+  value       = "http://${module.machines.instance_public_ip}:8080"
   description = "Jenkins URL"
 }
